@@ -30,15 +30,11 @@ Users_Id Int @id @default(autoincrement())
 
 Email    String @unique
 Password String
-
 Role   Role
 Status Status @default(ACTIVE)
-
 Created_At DateTime @default(now())
 Updated_At DateTime @updatedAt
-
 Profile Profiles?
-
 Services Services[]
 Orders   Orders[]
 
