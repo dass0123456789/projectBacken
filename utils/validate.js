@@ -1,6 +1,6 @@
 import {object,string} from "yup"
 export const registerscheema=object().shape({
-  email:string().email().required('Must not be empty').test(
+  Email:string().email().required('Must not be empty').test(
       'no-script-tag',
       'The text must not contain <script> tags or JavaScript code',
       (value) => {
@@ -9,16 +9,7 @@ export const registerscheema=object().shape({
         return !forbiddenPattern.test(value);
       }
     ),
-  username:string().min(1).test(
-      'no-script-tag',
-      'The text must not contain <script> tags or JavaScript code',
-      (value) => {
-        if (!value) return true; 
-        const forbiddenPattern = /<\s*script.*?>.*?<\s*\/\s*script\s*>|javascript:|on\w+=/gis;
-        return !forbiddenPattern.test(value);
-      }
-    ),
-  password:string().min(6).test(
+  Password:string().min(6).test(
       'no-script-tag',
       'The text must not contain <script> tags or JavaScript code',
       (value) => {
@@ -29,7 +20,7 @@ export const registerscheema=object().shape({
     )
 })
 export const loginscheema=object().shape({
-  email:string().email().required('Must not be empty').test(
+  Email:string().email().required('Must not be empty').test(
       'no-script-tag',
       'The text must not contain <script> tags or JavaScript code',
       (value) => {
@@ -38,7 +29,7 @@ export const loginscheema=object().shape({
         return !forbiddenPattern.test(value);
       }
     ),
-  password:string().min(6).test(
+  Password:string().min(6).test(
       'no-script-tag',
       'The text must not contain <script> tags or JavaScript code',
       (value) => {
@@ -49,7 +40,7 @@ export const loginscheema=object().shape({
     )
 })
 export const updateemailcheema=object().shape({
-  email:string().email().required('Must not be empty').test(
+  Email:string().email().required('Must not be empty').test(
       'no-script-tag',
       'The text must not contain <script> tags or JavaScript code',
       (value) => {

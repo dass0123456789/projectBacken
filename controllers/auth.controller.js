@@ -1,14 +1,16 @@
+
 import prisma from "../config/prisma.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import createError from "../utils/createError.js";
+
 export const register = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
     const user = await prisma.users.findFirst({
       where: {
-        email: email,
+        Email: email,
       },
     });
 
@@ -20,10 +22,10 @@ export const register = async (req, res, next) => {
 
     await prisma.users.create({
       data: {
-        email: email,
-        password: hashPassword,
-        role: "USER",
-        status: "ACTIVE",
+        Email: email,
+        Password: hashPassword,
+        Role: "USER",
+        Status: "ACTIVE",
       },
     });
 
@@ -34,13 +36,14 @@ export const register = async (req, res, next) => {
     next(err);
   }
 };
+
 export const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
     const user = await prisma.users.findFirst({
       where: {
-        email: email,
+        Email: email,
       },
     });
 
@@ -52,7 +55,7 @@ export const login = async (req, res, next) => {
 
     const checkPassword = bcrypt.compareSync(
       password,
-      user.password
+      user.Password
     );
 
     if (!checkPassword) {
@@ -61,7 +64,7 @@ export const login = async (req, res, next) => {
       );
     }
 
-    if (user.status !== "ACTIVE") {
+    if (user.Status !== "ACTIVE") {
       return next(
         createError(403, "Account is not active")
       );
@@ -69,8 +72,9 @@ export const login = async (req, res, next) => {
 
     const payload = {
       id: user.Users_Id,
-      email: user.email,
-      role: user.role,
+      email: user.Email,
+      role: user.Role,
+      status: user.Status,
     };
 
     const token = jwt.sign(
