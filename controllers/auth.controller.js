@@ -6,11 +6,11 @@ import createError from "../utils/createError.js";
 
 export const register = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const { Email, Password } = req.body;
 
     const user = await prisma.users.findFirst({
       where: {
-        Email: email,
+        Email: Email,
       },
     });
 
@@ -18,11 +18,11 @@ export const register = async (req, res, next) => {
       return next(createError(400, "Email already exists"));
     }
 
-    const hashPassword = bcrypt.hashSync(password, 10);
+    const hashPassword = bcrypt.hashSync(Password, 10);
 
     await prisma.users.create({
       data: {
-        Email: email,
+        Email,
         Password: hashPassword,
         Role: "USER",
         Status: "ACTIVE",
@@ -39,11 +39,11 @@ export const register = async (req, res, next) => {
 
 export const login = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const { Email, Password } = req.body;
 
     const user = await prisma.users.findFirst({
       where: {
-        Email: email,
+        Email,
       },
     });
 
@@ -54,7 +54,7 @@ export const login = async (req, res, next) => {
     }
 
     const checkPassword = bcrypt.compareSync(
-      password,
+      Password,
       user.Password
     );
 

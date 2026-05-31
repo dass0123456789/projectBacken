@@ -340,4 +340,3 @@ export const amountuser = async (req, res, next) => {
     next(err);
   }
 };
-

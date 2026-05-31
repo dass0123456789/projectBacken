@@ -7,13 +7,10 @@ import {createprofile,upprofile,updateprofile,updateemail,updatepassword,updater
 } from "../controllers/profile.controller.js";
 
 const route = express.Router();
-
 route.post("/newprofile", verifytoken, createprofile);
 route.post("/uploadprofile", verifytoken, multer, upprofile);
 route.patch("/updateprofile", verifytoken, updateprofile);
 route.get("/readprofile/:id", verifytoken, readprofile);
-
-// User
 route.get("/listuser", listuser);
 route.get("/readuser/:user_id", readuser);
 route.get("/readuserbyemail/:email", readuserbyemail);
