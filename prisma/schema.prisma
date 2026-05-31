@@ -4,82 +4,64 @@ generator client {
 
 datasource db {
   provider = "mysql"
-  url      = env("DATABASE_URL")
+  url= env("DATABASE_URL")
 }
 
-model replies {
-  replie_id     Int       @id @default(autoincrement())
-  thread_id     Int
-  user_id       Int
-  body          String    @db.MediumText
-  is_deleted    Boolean   @default(false)
-  created_at    DateTime  @default(now()) @db.DateTime(0)
-  updated_at    DateTime? @db.DateTime(0)
-  threads       threads   @relation(fields: [thread_id], references: [thread_id], onDelete: Cascade, onUpdate: NoAction, map: "replies_ibfk_1")
-  users         users     @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "replies_ibfk_2")
-  @@index([thread_id], map: "thread_id")
-  @@index([user_id], map: "user_id")
+model Users {
+  Users_Id Int @id @default(autoincrement())
+
+  Email    String @unique
+  Password String
+
+  Role   Role
+  Status Status @default(ACTIVE)
+
+  Created_At DateTime @default(now())
+  Updated_At DateTime @updatedAt
+
+  Profile Profiles?
+
+  @@map("users")
 }
 
-model threads {
-  thread_id  Int       @id @default(autoincrement())
-  user_id    Int
-  title      String    @db.VarChar(200)
-  body       String    @db.MediumText
-  cat_id      Int
-  is_locked  Boolean   @default(false)
-  is_deleted Boolean   @default(false)
-  created_at DateTime  @default(now()) @db.DateTime(0)
-  updated_at DateTime? @db.DateTime(0)
-  replies    replies[]
-  users      users     @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: Cascade, map: "threads_ibfk_1")
-  report     report[]
-  category   Category @relation(fields: [cat_id], references: [cat_id], onDelete: Cascade,onUpdate: Cascade ,map: "threads_ibfk_2")
-  @@index([user_id], map: "user_id")
-  @@index([cat_id], map: "cat_id")
+model Profiles {
+  Profile_Id Int @id @default(autoincrement())
+
+  Users_Id Int @unique
+
+  First_Name String?
+  Last_Name  String?
+
+  Phone  String?
+  Avatar String?
+
+  Gender Gender?
+
+  Birth_Date DateTime?
+  Address    String?   @db.Text
+
+  Created_At DateTime @default(now())
+  Updated_At DateTime @updatedAt
+
+  User Users @relation(fields: [Users_Id], references: [Users_Id])
+
+  @@map("profiles")
 }
 
-model users {
-  user_id       Int        @id @default(autoincrement())
-  username      String     @unique(map: "username") @db.VarChar(32)
-  email         String?    @unique(map: "email") @db.VarChar(255)
-  pass_hash     String     @db.VarChar(255)
-  role          users_role @default(user)
-  created_at    DateTime   @default(now()) @db.DateTime(0)
-  last_login_at DateTime?  @db.DateTime(0)
-  replies       replies[]
-  threads       threads[]
-  profile       profile[]
-  report        report[]
-
-}
-model profile {
-  profile_id   Int     @id @default(autoincrement())
-  user_id      Int
-  firstname    String?  @db.VarChar(100)
-  lastname     String?  @db.VarChar(100)
-  sex          String?  @db.VarChar(12)
-  picturename  String?  @db.Text
-  link         String?  @db.VarChar(255) 
-
-  users         users    @relation(fields: [user_id], references: [user_id])
-}
-model report {
-  report_id    Int     @id @default(autoincrement())
-  user_id      Int
-  thread_id    Int
-  report_title String  @db.VarChar(50)
-  users   users   @relation(fields: [user_id], references: [user_id],onDelete: Cascade, onUpdate: Cascade)
-  threads threads @relation(fields: [thread_id], references: [thread_id],onDelete: Cascade, onUpdate: Cascade)
-}
-model Category {
-  cat_id   Int    @id @default(autoincrement())
-  cat_name String
-  is_delete Boolean @default(false)
-  threads  threads[]
+enum Role {
+  USER
+  TECHNICIAN
+  ADMIN
 }
 
-enum users_role {
-  user
-  admin
+enum Status {
+  ACTIVE
+  INACTIVE
+  BANNED
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
 }

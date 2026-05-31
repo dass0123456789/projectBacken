@@ -1,391 +1,343 @@
-import prisma from "../config/prisma.js"
-import createError from "../utils/createError.js"
-import bcrypt from "bcrypt"
+import prisma from "../config/prisma.js";
+import createError from "../utils/createError.js";
+import bcrypt from "bcrypt";
+
 export const createprofile = async (req, res, next) => {
   try {
-    const { user_id, firstname, lastname, sex,link} = req.body
-    const a = req.body
-    console.log(a)
-    if (!user_id) {
-      return createError(400, "Please enter the userId")
+    const {
+      Users_Id,
+      First_Name,
+      Last_Name,
+      Phone,
+      Gender,
+      Birth_Date,
+      Address,
+    } = req.body;
+
+    if (!Users_Id) {
+      return next(createError(400, "Users_Id is required"));
     }
-    if (!firstname) {
-      return createError(400, "Please enter the firstname")
+
+    const user = await prisma.users.findUnique({
+      where: {
+        Users_Id: Number(Users_Id),
+      },
+    });
+
+    if (!user) {
+      return next(createError(404, "User not found"));
     }
-    if (!lastname) {
-      return createError(400, "Please enter the lastname")
+
+    const profileExists = await prisma.profiles.findUnique({
+      where: {
+        Users_Id: Number(Users_Id),
+      },
+    });
+
+    if (profileExists) {
+      return next(createError(400, "Profile already exists"));
     }
-    if (!sex) {
-      return createError(400, "Please select the sex")
-    }
-    await prisma.profile.create({
+
+    const profile = await prisma.profiles.create({
       data: {
-        user_id,
-        firstname,
-        lastname,
-        sex,
-        link
-      }
-    })
-    res.json({ msg: "createprofile success" })
-  } catch (error) {
-    next(error)
+        Users_Id: Number(Users_Id),
+        First_Name,
+        Last_Name,
+        Phone,
+        Gender,
+        Birth_Date: Birth_Date ? new Date(Birth_Date) : null,
+        Address,
+      },
+    });
+
+    res.json(profile);
+  } catch (err) {
+    next(err);
   }
-}
+};
+
 export const upprofile = async (req, res, next) => {
   try {
-    let data = req.body
-    if (req.file) {
-      data.file = req.file.filename
+    const { Users_Id } = req.body;
+
+    if (!req.file) {
+      return next(createError(400, "Avatar file is required"));
     }
-    console.log(data.file)
-    console.log(data)
-    await prisma.profile.updateMany({
+
+    await prisma.profiles.update({
       where: {
-        user_id: parseInt(data.user_id)
+        Users_Id: Number(Users_Id),
       },
       data: {
-        picturename: data.file
-      }
-    })
-    res.json({ msg: "uploadprofile success" })
-  } catch (error) {
-    next(error)
-  }
-}
-export const updateusername = async (req, res, next) => {
-  try {
-    const { user_id, username } = req.body
-    if (!user_id) {
-      return createError(400, "Please enter the userId")
-    }
-    if (!username) {
-      return createError(400, "Please enter the username")
-    }
-    const user = await prisma.users.findFirst({
-      where: {
-        user_id
-      }
-    })
-    if (!user) {
-      return createError(400, "user not exists")
-    }
-    await prisma.users.update({
-      where: {
-        user_id
+        Avatar: req.file.filename,
       },
-      data: {
-        username
-      }
-    })
-    res.json({ msg: "update username success" })
-  } catch (error) {
-    next(error)
+    });
+
+    res.json({
+      message: "Upload avatar success",
+    });
+  } catch (err) {
+    next(err);
   }
-}
+};
+
 export const readprofile = async (req, res, next) => {
   try {
-    const { id } = req.params
-    if (!id) {
-      return createError(400, "Please enter the userId")
-    }
-    const profile = await prisma.profile.findFirst({
+    const { id } = req.params;
+
+    const profile = await prisma.profiles.findUnique({
       where: {
-        user_id: parseInt(id)
-      }
-    })
-    res.json(profile)
-  } catch (error) {
-    next(error)
+        Users_Id: Number(id),
+      },
+    });
+
+    if (!profile) {
+      return next(createError(404, "Profile not found"));
+    }
+
+    res.json(profile);
+  } catch (err) {
+    next(err);
   }
-}
-export const updatefirstname = async (req, res, next) => {
+};
+
+export const updateprofile = async (req, res, next) => {
   try {
-    const { user_id, firstname } = req.body
-    if (!user_id) {
-      return createError(400, "Please enter the userId")
-    }
-    if (!firstname) {
-      return createError(400, "Please enter the firstname")
-    }
-    const user = await prisma.profile.findFirst({
+    const {
+      Users_Id,
+      First_Name,
+      Last_Name,
+      Phone,
+      Gender,
+      Birth_Date,
+      Address,
+    } = req.body;
+
+    const profile = await prisma.profiles.findUnique({
       where: {
-        user_id
-      }
-    })
-    if (!user) {
-      return createError(400, "user not exists")
+        Users_Id: Number(Users_Id),
+      },
+    });
+
+    if (!profile) {
+      return next(createError(404, "Profile not found"));
     }
-    await prisma.profile.updateMany({
+
+    const updated = await prisma.profiles.update({
       where: {
-        user_id
+        Users_Id: Number(Users_Id),
       },
       data: {
-        firstname
-      }
-    })
-    res.json({ msg: "updatefirstname success" })
-  } catch (error) {
-    next(error)
-  }
-}
-export const updatelastname = async (req, res, next) => {
-  try {
-    const { user_id, lastname } = req.body
-    if (!user_id) {
-      return createError(400, "Please enter the userId")
-    }
-    if (!lastname) {
-      return createError(400, "Please enter the lastname")
-    }
-    const user = await prisma.profile.findFirst({
-      where: {
-        user_id
-      }
-    })
-    if (!user) {
-      return createError(400, "user not exists")
-    }
-    await prisma.profile.updateMany({
-      where: {
-        user_id
+        First_Name,
+        Last_Name,
+        Phone,
+        Gender,
+        Birth_Date: Birth_Date ? new Date(Birth_Date) : undefined,
+        Address,
       },
-      data: {
-        lastname
-      }
-    })
-    res.json({ msg: "updatelastname success" })
-  } catch (error) {
-    next(error)
+    });
+
+    res.json(updated);
+  } catch (err) {
+    next(err);
   }
-}
+};
+
 export const updateemail = async (req, res, next) => {
   try {
-    const { user_id, email } = req.body
-    if (!user_id) {
-      return createError(400, "Please enter the userId")
-    }
-    if (!email) {
-      return createError(400, "Please enter the email")
-    }
-    const user = await prisma.users.findFirst({
+    const { Users_Id, Email } = req.body;
+
+    const user = await prisma.users.findUnique({
       where: {
-        user_id
-      }
-    })
+        Users_Id: Number(Users_Id),
+      },
+    });
+
     if (!user) {
-      return createError(400, "user not exists")
+      return next(createError(404, "User not found"));
     }
+
     await prisma.users.update({
       where: {
-        user_id
+        Users_Id: Number(Users_Id),
       },
       data: {
-        email
-      }
-    })
-    res.json({ msg: "update email success" })
-  } catch (error) {
-    next(error)
+        Email,
+      },
+    });
+
+    res.json({
+      message: "update email success",
+    });
+  } catch (err) {
+    next(err);
   }
-}
-export const updatesex = async (req, res, next) => {
+};
+
+export const updatepassword = async (req, res, next) => {
   try {
-    const { user_id, sex } = req.body
-    if (!user_id) {
-      return createError(400, "Please enter the userId")
-    }
-    if (!sex) {
-      return createError(400, "Please select the sex")
-    }
-    const user = await prisma.profile.findFirst({
+    const { Users_Id, Password } = req.body;
+
+    const user = await prisma.users.findUnique({
       where: {
-        user_id
-      }
-    })
+        Users_Id: Number(Users_Id),
+      },
+    });
+
     if (!user) {
-      return createError(400, "user not exists")
+      return next(createError(404, "User not found"));
     }
-    await prisma.profile.update({
+
+    const hashPassword = bcrypt.hashSync(Password, 10);
+
+    await prisma.users.update({
       where: {
-        profile_id:user.profile_id
+        Users_Id: Number(Users_Id),
       },
       data: {
-        sex
-      }
-    })
-    res.json({ msg: "updatesex success" })
-  } catch (error) {
-    next(error)
-  }
-}
-export const amounuser = async (req, res, next) => {
-  try {
-    const user = await prisma.users.findMany()
-    let count = 0
-    user.map((c) => {
-      count++
-    })
-    res.json({ amounuser: count })
-  } catch (error) {
-    next(error)
-  }
-}
-export const listuser = async (req, res, next) => {
-  try {
-    const user = await prisma.users.findMany({
-      select: {
-        user_id: true,
-        username: true,
-        email: true,
-        role: true
-      }
-    })
-    res.json(user)
-  } catch (error) {
-    next(error)
-  }
-}
-export const readuser = async (req, res, next) => {
-  try {
-    const { user_id } = req.params
-    if (!user_id) {
-      return createError(400, "Please enter the userId")
-    }
-    const usercheck = await prisma.users.findFirst({
-      where: {
-        user_id: parseInt(user_id)
-      }
-    })
-    if (!usercheck) {
-      return createError(400, "This user does not exist")
-    }
-    const user = await prisma.users.findFirst({
-      where: {
-        user_id: parseInt(user_id)
+        Password: hashPassword,
       },
-      select: {
-        user_id: true,
-        username: true,
-        email: true,
-        role: true
-      }
-    })
-    res.json(user)
-  } catch (error) {
-    next(error)
+    });
+
+    res.json({
+      message: "update password success",
+    });
+  } catch (err) {
+    next(err);
   }
-}
+};
+
 export const updaterole = async (req, res, next) => {
   try {
-    const { user_id, role } = req.body
-    if (!user_id) {
-      return createError(400, "Please enter the userId")
-    }
-    if(!role){
-      return createError(400, "Please select the role")
-    }
-    const usercheck = await prisma.users.findFirst({
+    const { Users_Id, Role } = req.body;
+
+    const user = await prisma.users.findUnique({
       where: {
-        user_id
-      }
-    })
-    if (!usercheck) {
-      return createError(400, "This user does not exist")
+        Users_Id: Number(Users_Id),
+      },
+    });
+
+    if (!user) {
+      return next(createError(404, "User not found"));
     }
+
     await prisma.users.update({
       where: {
-        user_id: parseInt(user_id)
+        Users_Id: Number(Users_Id),
       },
       data: {
-        role
-      }
-    })
-    res.json({ msg: "updaterole success" })
-  } catch (error) {
-    next(error)
-  }
-}
-export const updatelink=async(req,res,next)=>{
-  try {
-    const {user_id,link}=req.body
-    if (!user_id) {
-      return createError(400, "Please enter the userId")
-    }
-    if (!user_id) {
-      return createError(400, "Please enter the Link")
-    }
-    const profile=await prisma.profile.findFirst({
-      where:{
-        user_id
-      }
-    })
-    if(!profile){
-      return createError(400, "This profile does not exist")
-    }
-    await prisma.profile.update({
-      where:{
-        profile_id:profile.profile_id
+        Role,
       },
-      data:{
-        link
-      }
-    })
-    res.json({msg:'updatelink success'})
-  } catch (error) {
-    next(error)
+    });
+
+    res.json({
+      message: "update role success",
+    });
+  } catch (err) {
+    next(err);
   }
-}
-export const readuserbyemail=async(req,res,next)=>{
+};
+
+export const updatestatus = async (req, res, next) => {
   try {
-    const {email}=req.params
-    if(!email){
-      return createError(400, "Please enter the Email")
-    }
-    const user=await prisma.users.findFirst({
-      where:{
-        email
+    const { Users_Id, Status } = req.body;
+
+    const user = await prisma.users.findUnique({
+      where: {
+        Users_Id: Number(Users_Id),
       },
-      select:{
-        user_id: true,
-        username: true,
-        email: true,
-        role: true
-      }
-    })
-    if(!user){
-      return createError(400, "This user does not exist")
-    }
-    res.json(user)
-  } catch (error) {
-    next(error)
-  }
-}
-export const updatepassword=async(req,res,next)=>{
-  try {
-    const {user_id,password}=req.body
-    if (!user_id) {
-      return createError(400, "Please enter the userId")
-    }
-    const user=await prisma.users.findFirst({
-      where:{
-        user_id
-      }
-    })
+    });
+
     if (!user) {
-      return createError(400, "user not exists")
+      return next(createError(404, "User not found"));
     }
-    const hashpass=bcrypt.hashSync(password,10)
+
     await prisma.users.update({
-      where:{
-        user_id
+      where: {
+        Users_Id: Number(Users_Id),
       },
-      data:{
-        pass_hash:hashpass
-      }
-    })
-    res.json({msg:"updatepassword success"})
-  } catch (error) {
-    next(error)
+      data: {
+        Status,
+      },
+    });
+
+    res.json({
+      message: "update status success",
+    });
+  } catch (err) {
+    next(err);
   }
-}
+};
+
+export const listuser = async (req, res, next) => {
+  try {
+    const users = await prisma.users.findMany({
+      include: {
+        Profile: true,
+      },
+    });
+
+    res.json(users);
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const readuser = async (req, res, next) => {
+  try {
+    const { user_id } = req.params;
+
+    const user = await prisma.users.findUnique({
+      where: {
+        Users_Id: Number(user_id),
+      },
+      include: {
+        Profile: true,
+      },
+    });
+
+    if (!user) {
+      return next(createError(404, "User not found"));
+    }
+
+    res.json(user);
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const readuserbyemail = async (req, res, next) => {
+  try {
+    const { email } = req.params;
+
+    const user = await prisma.users.findUnique({
+      where: {
+        Email: email,
+      },
+      include: {
+        Profile: true,
+      },
+    });
+
+    if (!user) {
+      return next(createError(404, "User not found"));
+    }
+
+    res.json(user);
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const amountuser = async (req, res, next) => {
+  try {
+    const count = await prisma.users.count();
+
+    res.json({
+      amountuser: count,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
