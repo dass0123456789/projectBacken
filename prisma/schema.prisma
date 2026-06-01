@@ -24,6 +24,12 @@ MALE
 FEMALE
 OTHER
 }
+enum OrderStatus {
+  PENDING
+  ACCEPTED
+  COMPLETED
+  CANCELLED
+}
 
 model Users {
 Users_Id Int @id @default(autoincrement())
@@ -63,6 +69,7 @@ Users_Id Int
 Title String
 Description String?
 Price Float
+Image String?
 Created_At DateTime @default(now())
 Updated_At DateTime @updatedAt
 User Users @relation(fields: [Users_Id],references: [Users_Id])
@@ -73,7 +80,7 @@ model Orders {
 Order_Id Int @id @default(autoincrement())
 Users_Id Int
 Service_Id Int
-Status String @default("PENDING")
+Status OrderStatus @default(PENDING)
 Created_At DateTime @default(now())
 Updated_At DateTime @updatedAt
 User Users @relation(fields: [Users_Id],references: [Users_Id])
@@ -95,6 +102,7 @@ Chat_Id Int @id @default(autoincrement())
 Sender_Id Int
 Receiver_Id Int
 Message String
+Is_Read Boolean @default(false)
 Created_At DateTime @default(now())
 @@map("chats")
 }
