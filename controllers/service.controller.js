@@ -3,18 +3,29 @@ import createError from "../utils/createError.js";
 
 export const createService = async (req, res, next) => {
   try {
-    const { Users_Id,Title, Description, Price } = req.body;
+    const {Users_Id,Title,Category,Description,Price,} = req.body;
+    const user = await prisma.users.findUnique({
+      where: {
+        Users_Id: Number(Users_Id),
+      },
+    });
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found.",
+      });
+    }
     const service = await prisma.services.create({
       data: {
-        Users_Id:Number(Users_Id),
-        Title,
-        Description,
+        Users_Id: Number(Users_Id),
+        Title: Title,
+        Category: Category,
+        Description: Description || null,
         Price: Number(Price),
         Image: req.file?.filename || null,
       },
     });
-    res.json({
-      message: "Create Service Success",
+    res.status(201).json({
+      message: "Service created successfully.",
       result: service,
     });
   } catch (err) {
@@ -54,7 +65,6 @@ export const getAllServices = async (req, res, next) => {
 export const getServiceById = async (req, res, next) => {
   try {
     const { id } = req.params;
-
     const service = await prisma.services.findUnique({
       where: {
         Service_Id: Number(id),
@@ -94,10 +104,13 @@ export const updateService = async (req, res, next) => {
     if (service.Users_Id !== Number(req.body.Users_Id)) {
       createError(403, "Access Denied");
     }
-    const { Title, Description, Price } = req.body;
+    const {Title,Category,Description,Price,} = req.body;
     const updateData = {};
     if (Title !== undefined) {
       updateData.Title = Title;
+    }
+    if (Category !== undefined) {
+      updateData.Category = Category;
     }
     if (Description !== undefined) {
       updateData.Description = Description;
@@ -114,10 +127,7 @@ export const updateService = async (req, res, next) => {
       },
       data: updateData,
     });
-    res.json({
-      message: "Update Service Success",
-      result,
-    });
+    res.json({message: "Update Service Success",result,});
   } catch (err) {
     next(err);
   }
@@ -131,10 +141,10 @@ export const deleteService = async (req, res, next) => {
       },
     });
     if (!service) {
-      (404, "Service not found");
+      createError(404, "Service not found");
     }
-    if (service.Users_Id !== req.body.Users_Id) {
-      createError(403, "Access Denied");
+    if (service.Users_Id !== Number(req.body.Users_Id)) {
+    createError(403, "Access Denied");
     }
     await prisma.services.delete({
       where: {
@@ -143,6 +153,62 @@ export const deleteService = async (req, res, next) => {
     });
     res.json({
       message: "Delete Service Success",
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+export const searchServices = async (req, res, next) => {
+  try {
+    const {
+      q,
+      category,
+      minPrice,
+      maxPrice,
+    } = req.query;
+    const services = await prisma.services.findMany({
+      where: {
+        AND: [
+          {
+            OR: [
+              {
+                Title: {
+                  contains: q || "",
+                },
+              },
+              {
+                Description: {
+                  contains: q || "",
+                },
+              },
+            ],
+          },
+          {
+            Category: category || undefined,
+          }
+        ],
+      },
+      include: {
+        User: {
+          select: {
+            Users_Id: true,
+            Email: true,
+            Profile: {
+              select: {
+                First_Name: true,
+                Last_Name: true,
+                Avatar: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: {
+        Created_At: "desc",
+      },
+    });
+    res.json({
+      result: services,
     });
   } catch (err) {
     next(err);

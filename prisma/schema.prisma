@@ -30,10 +30,19 @@ enum OrderStatus {
   COMPLETED
   CANCELLED
 }
+enum ServiceCategory {
+  ELECTRICAL
+  PLUMBING
+  AIR_CONDITIONER
+  PAINTING
+  CONSTRUCTION
+  FURNITURE
+  CLEANING
+  OTHER
+}
 
 model Users {
 Users_Id Int @id @default(autoincrement())
-
 Email    String @unique
 Password String
 Role   Role
@@ -64,17 +73,18 @@ User Users @relation(fields: [Users_Id],references: [Users_Id])
 @@map("profiles")
 }
 model Services {
-Service_Id Int @id @default(autoincrement())
-Users_Id Int
-Title String
-Description String?
-Price Float
-Image String?
-Created_At DateTime @default(now())
-Updated_At DateTime @updatedAt
-User Users @relation(fields: [Users_Id],references: [Users_Id])
-Orders Orders[]
-@@map("services")
+  Service_Id Int @id @default(autoincrement())
+  Users_Id Int
+  Title String
+  Category ServiceCategory
+  Description String?
+  Price Float
+  Image String?
+  Created_At DateTime @default(now())
+  Updated_At DateTime @updatedAt
+  User Users @relation(fields: [Users_Id], references: [Users_Id])
+  Orders Orders[]
+  @@map("services")
 }
 model Orders {
 Order_Id Int @id @default(autoincrement())
