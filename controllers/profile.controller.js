@@ -15,7 +15,7 @@ export const createprofile = async (req, res, next) => {
     } = req.body;
 
     if (!Users_Id) {
-      return next(createError(400, "Users_Id is required"));
+      createError(400, "Users_Id is required");
     }
 
     const user = await prisma.users.findUnique({
@@ -25,7 +25,7 @@ export const createprofile = async (req, res, next) => {
     });
 
     if (!user) {
-      return next(createError(404, "User not found"));
+      createError(404, "User not found");
     }
 
     const profileExists = await prisma.profiles.findUnique({
@@ -35,7 +35,7 @@ export const createprofile = async (req, res, next) => {
     });
 
     if (profileExists) {
-      return next(createError(400, "Profile already exists"));
+      createError(400, "Profile already exists");
     }
 
     const profile = await prisma.profiles.create({
@@ -61,7 +61,7 @@ export const upprofile = async (req, res, next) => {
     const { Users_Id } = req.body;
 
     if (!req.file) {
-      return next(createError(400, "Avatar file is required"));
+      createError(400, "Avatar file is required");
     }
 
     await prisma.profiles.update({
@@ -92,7 +92,7 @@ export const readprofile = async (req, res, next) => {
     });
 
     if (!profile) {
-      return next(createError(404, "Profile not found"));
+      createError(400, "Profile not found");
     }
 
     res.json(profile);
@@ -120,7 +120,7 @@ export const updateprofile = async (req, res, next) => {
     });
 
     if (!profile) {
-      return next(createError(404, "Profile not found"));
+      createError(400, "Profile not found");
     }
 
     const updated = await prisma.profiles.update({
@@ -154,7 +154,7 @@ export const updateemail = async (req, res, next) => {
     });
 
     if (!user) {
-      return next(createError(404, "User not found"));
+      createError(404, "User not found");
     }
 
     await prisma.users.update({
@@ -185,7 +185,7 @@ export const updatepassword = async (req, res, next) => {
     });
 
     if (!user) {
-      return next(createError(404, "User not found"));
+      createError(404, "User not found");
     }
 
     const hashPassword = bcrypt.hashSync(Password, 10);
@@ -218,7 +218,7 @@ export const updaterole = async (req, res, next) => {
     });
 
     if (!user) {
-      return next(createError(404, "User not found"));
+      createError(404, "User not found");
     }
 
     await prisma.users.update({
@@ -249,7 +249,7 @@ export const updatestatus = async (req, res, next) => {
     });
 
     if (!user) {
-      return next(createError(404, "User not found"));
+      createError(404, "User not found");
     }
 
     await prisma.users.update({
@@ -297,7 +297,7 @@ export const readuser = async (req, res, next) => {
     });
 
     if (!user) {
-      return next(createError(404, "User not found"));
+      createError(404, "User not found");
     }
 
     res.json(user);
@@ -320,7 +320,7 @@ export const readuserbyemail = async (req, res, next) => {
     });
 
     if (!user) {
-      return next(createError(404, "User not found"));
+      createError(404, "User not found");
     }
 
     res.json(user);

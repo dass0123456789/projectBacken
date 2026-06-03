@@ -15,7 +15,7 @@ export const register = async (req, res, next) => {
     });
 
     if (user) {
-      return next(createError(400, "Email already exists"));
+      createError(400, "Email already exists");
     }
 
     const hashPassword = bcrypt.hashSync(Password, 10);

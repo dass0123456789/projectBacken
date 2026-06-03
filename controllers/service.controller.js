@@ -71,7 +71,7 @@ export const getServiceById = async (req, res, next) => {
       },
     });
     if (!service) {
-      return next(createError(404, "Service not found"));
+      createError(404, "Service not found");
     }
     res.json({
       result: service,
@@ -89,10 +89,10 @@ export const updateService = async (req, res, next) => {
       },
     });
     if (!service) {
-      return next(createError(404, "Service not found"));
+      createError(404, "Service not found");
     }
     if (service.Users_Id !== Number(req.body.Users_Id)) {
-      return next(createError(403, "Access Denied"));
+      createError(403, "Access Denied");
     }
     const { Title, Description, Price } = req.body;
     const updateData = {};
@@ -131,10 +131,10 @@ export const deleteService = async (req, res, next) => {
       },
     });
     if (!service) {
-      return next(createError(404, "Service not found"));
+      (404, "Service not found");
     }
     if (service.Users_Id !== req.body.Users_Id) {
-      return next(createError(403, "Access Denied"));
+      createError(403, "Access Denied");
     }
     await prisma.services.delete({
       where: {
