@@ -5,6 +5,7 @@ import authRoute from "./routes/auth.route.js"
 import profileRoute from "./routes/profile.route.js"
 import serviceRoute from "./routes/service.route.js"
 import orderRoute from "./routes/order.route.js"
+import reviewRoute from "./routes/review.route.js"
 import helmet from 'helmet'
 const app =express()
 app.use(helmet({
@@ -23,6 +24,7 @@ app.use('/api',authRoute)
 app.use('/api',profileRoute)
 app.use("/api", serviceRoute);
 app.use("/api",orderRoute)
+app.use("/api",reviewRoute)
 app.use((err,req,res,next)=>{
   res.status(err.code||500).json({msg:err.message||"server error"})
 })
