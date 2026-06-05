@@ -8,14 +8,14 @@ import orderRoute from "./routes/order.route.js"
 import reviewRoute from "./routes/review.route.js"
 import helmet from 'helmet'
 const app =express()
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'"]
-    }
-  }
-}));
+// app.use(helmet({
+//   contentSecurityPolicy: {
+//     directives: {
+//       defaultSrc: ["'self'"],
+//       scriptSrc: ["'self'"]
+//     }
+//   }
+// }));
 app.use(cors())
 app.use(morgan('dev'))
 app.use(express.json())

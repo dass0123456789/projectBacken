@@ -1,15 +1,17 @@
 import express from "express";
 
 import {createService,getAllServices,getServiceById,updateService,deleteService,
-searchServices} from "../controllers/service.controller.js";
+searchServices,searchServiceByCategory,getMyServices} from "../controllers/service.controller.js";
 import { verifytoken } from "../middleware/verifytoken.js";
 import upload from "../middleware/upload.js";
 import { validate, createServiceSchema } from "../utils/validate.js";
 const route = express.Router();
 route.post("/servicecreate",verifytoken,upload,validate(createServiceSchema),createService);
 route.get("/listservice",getAllServices);
-route.get("/servicesearch",searchServices);
+route.get("/searchservices",searchServices);
+route.get("/searchservicebycategory/:category", searchServiceByCategory);
 route.get("/readservice/:id",getServiceById);
+route.get("/searchmyservice/:Users_Id",getMyServices);
 route.patch("/updateservice/:id",verifytoken,upload,updateService);
 route.delete("/removeservice/:id",verifytoken,deleteService);
 

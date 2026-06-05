@@ -160,12 +160,7 @@ export const deleteService = async (req, res, next) => {
 };
 export const searchServices = async (req, res, next) => {
   try {
-    const {
-      q,
-      category,
-      minPrice,
-      maxPrice,
-    } = req.query;
+    const {q,category,minPrice,maxPrice,} = req.query;
     const services = await prisma.services.findMany({
       where: {
         AND: [
@@ -202,6 +197,51 @@ export const searchServices = async (req, res, next) => {
             },
           },
         },
+      },
+      orderBy: {
+        Created_At: "desc",
+      },
+    });
+    res.json({
+      result: services,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+export const searchServiceByCategory = async (req, res, next) => {
+  try {
+    const { category } = req.params;
+    const services = await prisma.services.findMany({
+      where: {
+        Category: category,
+      },
+      include: {
+        User: {
+          select: {
+            Users_Id: true,
+            Email: true,
+            Profile: true,
+          },
+        },
+      },
+      orderBy: {
+        Created_At: "desc",
+      },
+    });
+    res.json({
+      result: services,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+export const getMyServices = async (req, res, next) => {
+  try {
+    const { Users_Id } = req.params;
+    const services = await prisma.services.findMany({
+      where: {
+        Users_Id: Number(Users_Id),
       },
       orderBy: {
         Created_At: "desc",
