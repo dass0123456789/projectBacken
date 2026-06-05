@@ -1,5 +1,6 @@
 import prisma from "../config/prisma.js";
 import createError from "../utils/createError.js";
+import fs from "fs";
 
 export const createService = async (req, res, next) => {
   try {
@@ -93,6 +94,7 @@ export const getServiceById = async (req, res, next) => {
 export const updateService = async (req, res, next) => {
   try {
     const { id } = req.params;
+    const {Title,Category,Description,Price,Users_Id} = req.body;
     const service = await prisma.services.findUnique({
       where: {
         Service_Id: Number(id),
@@ -104,7 +106,6 @@ export const updateService = async (req, res, next) => {
     if (service.Users_Id !== Number(req.body.Users_Id)) {
       createError(403, "Access Denied");
     }
-    const {Title,Category,Description,Price,} = req.body;
     const updateData = {};
     if (Title !== undefined) {
       updateData.Title = Title;
@@ -119,6 +120,11 @@ export const updateService = async (req, res, next) => {
       updateData.Price = Number(Price);
     }
     if (req.file) {
+      if (service.Image) {
+        if (fs.existsSync(`uploads/${service.Image}`)) {
+          fs.unlinkSync(`uploads/${service.Image}`);
+        }
+      }
       updateData.Image = req.file.filename;
     }
     const result = await prisma.services.update({
