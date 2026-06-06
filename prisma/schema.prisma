@@ -27,6 +27,7 @@ OTHER
 enum OrderStatus {
   PENDING
   ACCEPTED
+  IN_PROGRESS
   COMPLETED
   CANCELLED
 }
@@ -84,6 +85,7 @@ model Services {
   Updated_At DateTime @updatedAt
   User Users @relation(fields: [Users_Id], references: [Users_Id])
   Orders Orders[]
+  Chats Chats[]
   @@map("services")
 }
 model Orders {
@@ -95,6 +97,7 @@ Created_At DateTime @default(now())
 Updated_At DateTime @updatedAt
 User Users @relation(fields: [Users_Id],references: [Users_Id])
 Service Services @relation(fields: [Service_Id],references: [Service_Id])
+Chats Chats[]
 Review Reviews?
 @@map("orders")
 }
@@ -108,11 +111,17 @@ Order Orders @relation(fields: [Order_Id],references: [Order_Id])
 @@map("reviews")
 }
 model Chats {
-Chat_Id Int @id @default(autoincrement())
-Sender_Id Int
-Receiver_Id Int
-Message String
-Is_Read Boolean @default(false)
-Created_At DateTime @default(now())
-@@map("chats")
+  Chat_Id Int @id @default(autoincrement())
+  Service_Id Int
+  Room_Id String
+  Order_Id Int?
+  Sender_Id Int
+  Receiver_Id Int
+  Message String?
+  Image String?
+  Is_Read Boolean @default(false)
+  Created_At DateTime @default(now())
+  Service Services @relation(fields: [Service_Id],references: [Service_Id])
+  Order Orders? @relation(fields: [Order_Id],references: [Order_Id])
+  @@map("chats")
 }

@@ -85,6 +85,7 @@ export const getProfileById = async (req, res, next) => {
 export const updateProfile = async (req, res, next) => {
   try {
     const {Users_Id,First_Name,Last_Name,Phone,Gender,Birth_Date,Address} = req.body;
+    let Avatar
     const profile = await prisma.profiles.findUnique({
       where: {
         Users_Id: Number(Users_Id),
@@ -93,41 +94,28 @@ export const updateProfile = async (req, res, next) => {
     if (!profile) {
       createError(400, "Profile not found");
     }
-    const updateData = {};
-    if (First_Name) {
-      updateData.First_Name = First_Name;
-    }
-    if (Last_Name) {
-      updateData.Last_Name = Last_Name;
-    }
-    if (Phone) {
-      updateData.Phone = Phone;
-    }
-    if (Gender) {
-      updateData.Gender = Gender;
-    }
-    if (Address) {
-      updateData.Address = Address;
-    }
     if (req.file) {
           if (profile.Avatar) {
             if (fs.existsSync(`uploads/${profile.Avatar}`)) {
               fs.unlinkSync(`uploads/${profile.Avatar}`);
             }
           }
-          updateData.Avatar = req.file.filename;
+          Avatar= req.file.filename;
         }
-    if (Birth_Date) {
-      updateData.Birth_Date = new Date(Birth_Date);
-    }
-    else{
-      updateData.Birth_Date=undefined
-    }
     const updated = await prisma.profiles.update({
       where: {
         Users_Id: Number(Users_Id),
       },
-      data:updateData
+      data: {
+        Users_Id: Number(Users_Id),
+        First_Name,
+        Last_Name,
+        Phone,
+        Gender,
+        Birth_Date: Birth_Date ? new Date(Birth_Date) : null,
+        Address,
+        Avatar
+      },
     });
     res.json(updated);
   } catch (err) {

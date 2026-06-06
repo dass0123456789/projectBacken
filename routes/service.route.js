@@ -6,7 +6,7 @@ import { verifytoken } from "../middleware/verifytoken.js";
 import upload from "../middleware/upload.js";
 import { validate, createServiceSchema } from "../utils/validate.js";
 const route = express.Router();
-route.post("/servicecreate",verifytoken,upload,validate(createServiceSchema),createService);
+route.post("/newservice",verifytoken,upload,validate(createServiceSchema),createService);
 route.get("/listservice",getAllServices);
 route.get("/searchservices",searchServices);
 route.get("/searchservicebycategory/:category", searchServiceByCategory);

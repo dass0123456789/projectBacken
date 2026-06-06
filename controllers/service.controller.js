@@ -4,7 +4,7 @@ import fs from "fs";
 
 export const createService = async (req, res, next) => {
   try {
-    const {Users_Id,Title,Category,Description,Price,} = req.body;
+    const { Users_Id, Title, Category, Description, Price, } = req.body;
     const user = await prisma.users.findUnique({
       where: {
         Users_Id: Number(Users_Id),
@@ -93,10 +93,11 @@ export const getServiceById = async (req, res, next) => {
 };
 export const updateService = async (req, res, next) => {
   try {
-    const {Service_Id,Title,Category,Description,Price,Users_Id} = req.body;
+    const { Service_Id, Title, Category, Description, Price, Users_Id } = req.body;
+    let Image
     const service = await prisma.services.findUnique({
       where: {
-        Service_Id:Number(Service_Id)
+        Service_Id: Number(Service_Id)
       },
     });
     if (!service) {
@@ -105,34 +106,27 @@ export const updateService = async (req, res, next) => {
     if (service.Users_Id !== Number(req.body.Users_Id)) {
       createError(403, "Access Denied");
     }
-    const updateData = {};
-    if (Title) {
-      updateData.Title = Title;
-    }
-    if (Category) {
-      updateData.Category = Category;
-    }
-    if (Description) {
-      updateData.Description = Description;
-    }
-    if (Price) {
-      updateData.Price = Number(Price);
-    }
     if (req.file) {
       if (service.Image) {
         if (fs.existsSync(`uploads/${service.Image}`)) {
           fs.unlinkSync(`uploads/${service.Image}`);
         }
       }
-      updateData.Image = req.file.filename;
+      Image = req.file.filename;
     }
     const result = await prisma.services.update({
       where: {
         Service_Id: Number(Service_Id),
       },
-      data: updateData,
+      data:{
+        Title:Title ? Title:undefined, 
+        Category:Category ? Category:undefined, 
+        Description, 
+        Price:Price ? Number(Price):undefined,
+        Image
+      }
     });
-    res.json({message: "Update Service Success",result,});
+    res.json({ message: "Update Service Success", result, });
   } catch (err) {
     next(err);
   }
@@ -149,7 +143,12 @@ export const deleteService = async (req, res, next) => {
       createError(404, "Service not found");
     }
     if (service.Users_Id !== Number(req.body.Users_Id)) {
-    createError(403, "Access Denied");
+      createError(403, "Access Denied");
+    }
+    if (service.Image) {
+      if (fs.existsSync(`uploads/${service.Image}`)) {
+        fs.unlinkSync(`uploads/${service.Image}`);
+      }
     }
     await prisma.services.delete({
       where: {
@@ -165,7 +164,7 @@ export const deleteService = async (req, res, next) => {
 };
 export const searchServices = async (req, res, next) => {
   try {
-    const {q,category,minPrice,maxPrice,} = req.query;
+    const { q, category, minPrice, maxPrice, } = req.query;
     const services = await prisma.services.findMany({
       where: {
         AND: [
