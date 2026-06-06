@@ -1,8 +1,9 @@
 import prisma from "../config/prisma.js";
 import createError from "../utils/createError.js";
 import bcrypt from "bcrypt";
+import fs from "fs";
 
-export const createprofile = async (req, res, next) => {
+export const createProfile = async (req, res, next) => {
   try {
     const {Users_Id,First_Name,Last_Name,Phone,Gender,Birth_Date,Address,} = req.body;
     if (!Users_Id) {
@@ -42,7 +43,7 @@ export const createprofile = async (req, res, next) => {
   }
 };
 
-export const upprofile = async (req, res, next) => {
+export const upProfile = async (req, res, next) => {
   try {
     const { Users_Id } = req.body;
     if (!req.file) {
@@ -64,7 +65,7 @@ export const upprofile = async (req, res, next) => {
   }
 };
 
-export const readprofile = async (req, res, next) => {
+export const getProfileById = async (req, res, next) => {
   try {
     const { id } = req.params;
     const profile = await prisma.profiles.findUnique({
@@ -81,9 +82,9 @@ export const readprofile = async (req, res, next) => {
   }
 };
 
-export const updateprofile = async (req, res, next) => {
+export const updateProfile = async (req, res, next) => {
   try {
-    const {Users_Id,First_Name,Last_Name,Phone,Gender,Birth_Date,Address,} = req.body;
+    const {Users_Id,First_Name,Last_Name,Phone,Gender,Birth_Date,Address} = req.body;
     const profile = await prisma.profiles.findUnique({
       where: {
         Users_Id: Number(Users_Id),
@@ -92,26 +93,50 @@ export const updateprofile = async (req, res, next) => {
     if (!profile) {
       createError(400, "Profile not found");
     }
+    const updateData = {};
+    if (First_Name) {
+      updateData.First_Name = First_Name;
+    }
+    if (Last_Name) {
+      updateData.Last_Name = Last_Name;
+    }
+    if (Phone) {
+      updateData.Phone = Phone;
+    }
+    if (Gender) {
+      updateData.Gender = Gender;
+    }
+    if (Address) {
+      updateData.Address = Address;
+    }
+    if (req.file) {
+          if (profile.Avatar) {
+            if (fs.existsSync(`uploads/${profile.Avatar}`)) {
+              fs.unlinkSync(`uploads/${profile.Avatar}`);
+            }
+          }
+          updateData.Avatar = req.file.filename;
+        }
+    if (Birth_Date) {
+      updateData.Birth_Date = new Date(Birth_Date);
+    }
+    else{
+      updateData.Birth_Date=undefined
+    }
     const updated = await prisma.profiles.update({
       where: {
         Users_Id: Number(Users_Id),
       },
-      data: {
-        First_Name,
-        Last_Name,
-        Phone,
-        Gender,
-        Birth_Date: Birth_Date ? new Date(Birth_Date) : undefined,
-        Address,
-      },
+      data:updateData
     });
     res.json(updated);
   } catch (err) {
     next(err);
   }
+
 };
 
-export const updateemail = async (req, res, next) => {
+export const updateEmail = async (req, res, next) => {
   try {
     const { Users_Id, Email } = req.body;
     const user = await prisma.users.findUnique({
@@ -138,7 +163,7 @@ export const updateemail = async (req, res, next) => {
   }
 };
 
-export const updatepassword = async (req, res, next) => {
+export const updatePassword = async (req, res, next) => {
   try {
     const { Users_Id, Password } = req.body;
     const user = await prisma.users.findUnique({
@@ -166,7 +191,7 @@ export const updatepassword = async (req, res, next) => {
   }
 };
 
-export const updaterole = async (req, res, next) => {
+export const updateRole = async (req, res, next) => {
   try {
     const { Users_Id, Role } = req.body;
     const user = await prisma.users.findUnique({
@@ -193,20 +218,17 @@ export const updaterole = async (req, res, next) => {
   }
 };
 
-export const updatestatus = async (req, res, next) => {
+export const updateStatus = async (req, res, next) => {
   try {
     const { Users_Id, Status } = req.body;
-
     const user = await prisma.users.findUnique({
       where: {
         Users_Id: Number(Users_Id),
       },
     });
-
     if (!user) {
       createError(404, "User not found");
     }
-
     await prisma.users.update({
       where: {
         Users_Id: Number(Users_Id),
@@ -224,7 +246,7 @@ export const updatestatus = async (req, res, next) => {
   }
 };
 
-export const listuser = async (req, res, next) => {
+export const getAllUser = async (req, res, next) => {
   try {
     const users = await prisma.users.findMany({
       include: {
@@ -237,7 +259,7 @@ export const listuser = async (req, res, next) => {
   }
 };
 
-export const readuser = async (req, res, next) => {
+export const getUserById = async (req, res, next) => {
   try {
     const { user_id } = req.params;
     const user = await prisma.users.findUnique({
@@ -257,7 +279,7 @@ export const readuser = async (req, res, next) => {
   }
 };
 
-export const readuserbyemail = async (req, res, next) => {
+export const getUserByEmail = async (req, res, next) => {
   try {
     const { email } = req.params;
     const user = await prisma.users.findUnique({
@@ -277,7 +299,7 @@ export const readuserbyemail = async (req, res, next) => {
   }
 };
 
-export const amountuser = async (req, res, next) => {
+export const amountUser = async (req, res, next) => {
   try {
     const count = await prisma.users.count();
     res.json({

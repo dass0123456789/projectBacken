@@ -12,7 +12,7 @@ route.get("/searchservices",searchServices);
 route.get("/searchservicebycategory/:category", searchServiceByCategory);
 route.get("/readservice/:id",getServiceById);
 route.get("/searchmyservice/:Users_Id",getMyServices);
-route.patch("/updateservice/:id",verifytoken,upload,updateService);
+route.patch("/updateservice",verifytoken,upload,updateService);
 route.delete("/removeservice/:id",verifytoken,deleteService);
 
 export default route;

@@ -93,11 +93,10 @@ export const getServiceById = async (req, res, next) => {
 };
 export const updateService = async (req, res, next) => {
   try {
-    const { id } = req.params;
-    const {Title,Category,Description,Price,Users_Id} = req.body;
+    const {Service_Id,Title,Category,Description,Price,Users_Id} = req.body;
     const service = await prisma.services.findUnique({
       where: {
-        Service_Id: Number(id),
+        Service_Id:Number(Service_Id)
       },
     });
     if (!service) {
@@ -107,16 +106,16 @@ export const updateService = async (req, res, next) => {
       createError(403, "Access Denied");
     }
     const updateData = {};
-    if (Title !== undefined) {
+    if (Title) {
       updateData.Title = Title;
     }
-    if (Category !== undefined) {
+    if (Category) {
       updateData.Category = Category;
     }
-    if (Description !== undefined) {
+    if (Description) {
       updateData.Description = Description;
     }
-    if (Price !== undefined) {
+    if (Price) {
       updateData.Price = Number(Price);
     }
     if (req.file) {
@@ -129,7 +128,7 @@ export const updateService = async (req, res, next) => {
     }
     const result = await prisma.services.update({
       where: {
-        Service_Id: Number(id),
+        Service_Id: Number(Service_Id),
       },
       data: updateData,
     });

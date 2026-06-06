@@ -35,7 +35,6 @@ export const register = async (req, res, next) => {
 export const login = async (req, res, next) => {
   try {
     const { Email, Password } = req.body;
-
     const user = await prisma.users.findFirst({
       where: {
         Email,
@@ -66,19 +65,8 @@ export const login = async (req, res, next) => {
       role: user.Role,
       status: user.Status,
     };
-
-    const token = jwt.sign(
-      payload,
-      process.env.SECRET,
-      {
-        expiresIn: "5h",
-      }
-    );
-    res.json({
-      message: "Login Success",
-      payload,
-      token,
-    });
+    const token = jwt.sign(payload,process.env.SECRET,{expiresIn: "5h",});
+    res.json({message: "Login Success",payload,token,});
   } catch (err) {
     next(err);
   }
