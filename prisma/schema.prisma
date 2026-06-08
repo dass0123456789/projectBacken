@@ -41,6 +41,11 @@ enum ServiceCategory {
   CLEANING
   OTHER
 }
+enum ChatType {
+  MESSAGE
+  IMAGE
+  PRICE_OFFER
+}
 
 model Users {
 Users_Id Int @id @default(autoincrement())
@@ -117,7 +122,9 @@ model Chats {
   Order_Id Int?
   Sender_Id Int
   Receiver_Id Int
+  Type ChatType @default(MESSAGE)
   Message String?
+  Price Float?
   Image String?
   Is_Read Boolean @default(false)
   Created_At DateTime @default(now())
