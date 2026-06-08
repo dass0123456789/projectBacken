@@ -12,7 +12,8 @@ export const createMessage = async (req, res, next) => {
     Receiver_Id: Number(Receiver_Id),
     Type: req.file? "IMAGE": "MESSAGE",
     Message: Message || null,
-    Image: req.file?.filename || null
+    Image: req.file?.filename || null,
+    Price: Price? Number(Price): null
   }
 });
     res.status(201).json({ message: "Send Message Success", result: chat });

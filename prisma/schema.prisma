@@ -25,9 +25,9 @@ FEMALE
 OTHER
 }
 enum OrderStatus {
-  PENDING
   ACCEPTED
   IN_PROGRESS
+  WAITING_CONFIRM
   COMPLETED
   CANCELLED
 }
@@ -45,6 +45,8 @@ enum ChatType {
   MESSAGE
   IMAGE
   PRICE_OFFER
+  PRICE_ACCEPT
+  PRICE_REJECT
 }
 
 model Users {
@@ -94,17 +96,19 @@ model Services {
   @@map("services")
 }
 model Orders {
-Order_Id Int @id @default(autoincrement())
-Users_Id Int
-Service_Id Int
-Status OrderStatus @default(PENDING)
-Created_At DateTime @default(now())
-Updated_At DateTime @updatedAt
-User Users @relation(fields: [Users_Id],references: [Users_Id])
-Service Services @relation(fields: [Service_Id],references: [Service_Id])
-Chats Chats[]
-Review Reviews?
-@@map("orders")
+  Order_Id Int @id @default(autoincrement())
+  Users_Id Int
+  Service_Id Int
+  Final_Price Float?
+  Work_Date DateTime?
+  Status OrderStatus @default(ACCEPTED)
+  Created_At DateTime @default(now())
+  Updated_At DateTime @updatedAt
+  User Users @relation(fields: [Users_Id],references: [Users_Id])
+  Service Services @relation(fields: [Service_Id],references: [Service_Id])
+  Chats Chats[]
+  Review Reviews?
+  @@map("orders")
 }
 model Reviews {
 Review_Id Int @id @default(autoincrement())
@@ -125,6 +129,7 @@ model Chats {
   Type ChatType @default(MESSAGE)
   Message String?
   Price Float?
+  Work_Date DateTime?
   Image String?
   Is_Read Boolean @default(false)
   Created_At DateTime @default(now())

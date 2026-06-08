@@ -3,10 +3,10 @@ import createError from "../utils/createError.js";
 
 export const createOrder = async (req, res, next) => {
   try {
-    const { Users_Id, Service_Id } = req.body;
+    const {Users_Id,Service_Id,offerPrice,workDate} = req.body;
     const service = await prisma.services.findUnique({
-      where: { 
-        Service_Id: Number(Service_Id) 
+      where: {
+        Service_Id: Number(Service_Id)
       }
     });
     if (!service) {
@@ -16,9 +16,11 @@ export const createOrder = async (req, res, next) => {
       data: {
         Users_Id: Number(Users_Id),
         Service_Id: Number(Service_Id),
-      },
+        Final_Price: Number(offerPrice),
+        Work_Date: new Date(workDate)
+      }
     });
-    res.json({ message: "Create Order Success", result: order, });
+    res.json({message: "Create Order Success",result: order});
   } catch (err) {
     next(err);
   }
