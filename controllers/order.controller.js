@@ -107,3 +107,68 @@ export const deleteOrder = async (req, res, next) => {
     next(err);
   }
 };
+export const startOrder = async (req,res,next) => {
+  try {
+    const { id } = req.params;
+    const result =await prisma.orders.update({
+        where: {
+          Order_Id: Number(id)
+        },
+        data: {
+          Status: "IN_PROGRESS"
+        }
+      });
+    res.json({message: "Start Order Success",result});
+  } catch (err) {
+    next(err);
+  }
+};
+export const finishOrder = async (req,res,next) => {
+  try {
+    const { id } = req.params;
+    const result =await prisma.orders.update({
+        where: {
+          Order_Id: Number(id)
+        },
+        data: {
+          Status: "WAITING_CONFIRM"
+        }
+      });
+    res.json({message: "Finish Order Success",result});
+  } catch (err) {
+    next(err);
+  }
+};
+export const confirmOrder = async (req,res,next) => {
+  try {
+    const { id } = req.params;
+    const result =await prisma.orders.update({
+        where: {
+          Order_Id: Number(id)
+        },
+        data: {
+          Status: "COMPLETED"
+        }
+      });
+    res.json({message: "Confirm Order Success",result});
+  } catch (err) {
+    next(err);
+  }
+};
+export const rejectOrder = async (req,res,next) => {
+  try {
+    const { id } = req.params;
+    const result =await prisma.orders.update({
+        where: {
+          Order_Id: Number(id)
+        },
+        data: {
+          Status: "IN_PROGRESS"
+        }
+      });
+    res.json({message: "Reject Order Success",result});
+  } catch (err) {
+    next(err);
+  }
+};
+
